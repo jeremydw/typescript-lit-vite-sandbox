@@ -1,6 +1,5 @@
 import { customElement, property } from 'lit/decorators.js';
 import { css, html, LitElement } from 'lit';
-import { classMap } from 'lit/directives/class-map.js';
 import {
   CardAccordionItem,
   CardAccordionItemEvent,
@@ -25,14 +24,19 @@ class CardAccordion extends LitElement {
   }
 
   firstUpdated() {
-    this.addEventListener('toggle', (e: Event) => {
+    // When an item is opened, close the others.
+    this.addEventListener('open', (e: Event) => {
       this.handleItemOpened(e.target as CardAccordionItem);
     });
   }
 
   handleItemOpened(openedItem: CardAccordionItem) {
-    console.log(openedItem);
-    // this.items.forEach((item) => (item.open = item === openedItem));
+    // Close all other items.
+    this.items.forEach((item) => {
+      if (item !== openedItem) {
+        item.open = false;
+      }
+    });
   }
 
   render() {

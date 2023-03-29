@@ -1,9 +1,10 @@
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, query, state } from 'lit/decorators.js';
 import { css, html, LitElement } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
+import { styleMap } from 'lit/directives/style-map.js';
 
 export enum CardAccordionItemEvent {
-  TOGGLE = 'toggle',
+  OPEN = 'open',
 }
 
 @customElement('card-accordion-item')
@@ -14,21 +15,40 @@ export class CardAccordionItem extends LitElement {
   @property({ type: Boolean, reflect: true })
   disabled?: boolean;
 
+  @query('#bodyContent')
+  body?: HTMLElement;
+
+  private bodyContentHeight?: Number;
+
   handleClick() {
     this.toggle();
+  }
+
+  firstUpdated() {
+    this.bodyContentHeight;
+    window.addEventListener('resize', () => this.updateBodyContentHeight(), {
+      passive: true,
+    });
+  }
+
+  updateBodyContentHeight() {
+    this.bodyContentHeight = this.body?.offsetHeight;
   }
 
   attributeChangedCallback(name: string, _old: string, value: string): void {
     super.attributeChangedCallback(name, _old, value);
     switch (name) {
       case 'open':
-        this.dispatchEvent(
-          new CustomEvent(CardAccordionItemEvent.TOGGLE, {
-            detail: { event: { target: this } },
-            bubbles: true,
-            composed: true,
-          })
-        );
+        // Empty string = true for boolean properties.
+        if (value === '') {
+          this.dispatchEvent(
+            new CustomEvent(CardAccordionItemEvent.OPEN, {
+              detail: { event: { target: this } },
+              bubbles: true,
+              composed: true,
+            })
+          );
+        }
     }
   }
 
@@ -57,15 +77,20 @@ export class CardAccordionItem extends LitElement {
       top: 0;
     }
 
+    .container--open .button {
+      visibility: hidden;
+    }
+
     .body {
       opacity: 0;
+      overflow: hidden;
       visibility: hidden;
       transition: all 300ms ease;
       height: 0;
     }
-
+    
     .body--open {
-      height: auto;
+      height: var(--card-accordion-item-body-height);
       opacity: 1;
       visibility: visible;
     }
@@ -84,9 +109,12 @@ export class CardAccordionItem extends LitElement {
   render() {
     return html`
       <div
+        style=${styleMap({
+          '--card-accordion-item-body-height': `${this.body?.offsetHeight}px`,
+        })}
         class=${classMap({
           container: true,
-          'container--open': this.open,
+          'container--open': !!this.open,
         })}
       >
         <button
@@ -99,16 +127,19 @@ export class CardAccordionItem extends LitElement {
           @click=${this.handleClick}
         ></button>
         <header>
-          <slot name="summary" id="summary"></slot>
+          <slot name="summary" id="summary" @slotchange=${() =>
+            this.updateBodyContentHeight()}></slot>
         </header>
         <div
           id="body"
           class=${classMap({
             body: true,
-            'body--open': this.open,
+            'body--open': !!this.open,
           })}
         >
+          <div id="bodyContent">
           <slot></slot>
+          </div>
         </div>
         <footer>⌄</footer>
       </div>

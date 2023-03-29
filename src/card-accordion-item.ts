@@ -27,6 +27,7 @@ export class CardAccordionItem extends LitElement {
 
   firstUpdated() {
     this.bodyContentHeight;
+    // Update the body content height when the window is resized.
     window.addEventListener('resize', () => this.updateBodyContentHeight(), {
       passive: true,
     });
@@ -42,6 +43,7 @@ export class CardAccordionItem extends LitElement {
       case 'open':
         // Empty string = true for boolean properties.
         if (value === '') {
+          // Dispatch `open` event when the accordion item is opened.
           this.dispatchEvent(
             new CustomEvent(CardAccordionItemEvent.OPEN, {
               detail: { event: { target: this } },

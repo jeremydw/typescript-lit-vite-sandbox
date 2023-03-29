@@ -1,46 +1,45 @@
 import { customElement, property } from 'lit/decorators.js';
 import { css, html, LitElement } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
+import {
+  CardAccordionItem,
+  CardAccordionItemEvent,
+} from './card-accordion-item';
 
-@customElement('card-accordion-item')
-class CardAccordionItem extends LitElement {
-  @property({ type: Boolean, reflect: true })
-  open: Boolean;
-
-  @property({ type: Boolean, reflect: true })
-  disabled: Boolean;
-
-  handleClick() {
-    console.log('toggle');
-  }
-
+@customElement('card-accordion')
+class CardAccordion extends LitElement {
   static styles = css`
     .container {
-      backgrond: red;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 30px;
+      justify-content: center;
+      align-items: center;
     }
   `;
 
+  get items() {
+    return [
+      ...this.querySelectorAll('card-accordion-item'),
+    ] as CardAccordionItem[];
+  }
+
+  firstUpdated() {
+    this.addEventListener('toggle', (e: Event) => {
+      this.handleItemOpened(e.target as CardAccordionItem);
+    });
+  }
+
+  handleItemOpened(openedItem: CardAccordionItem) {
+    console.log(openedItem);
+    // this.items.forEach((item) => (item.open = item === openedItem));
+  }
+
   render() {
     return html`
-    <div class=${classMap({
-      container: true,
-      'container--open': this.open,
-    })}>
-      <header
-        role="button"
-        aria-expanded=${this.open ? 'true' : 'false'}
-        aria-controls="body"
-        aria-disabled=${this.disabled ? 'true' : 'false'}
-        tabindex=${this.disabled ? '-1' : '0'}
-        @click=${this.handleClick}
-      >
-        <slot name="summary"></slot>
-        <div>Icon</div>
-      </header>
-      <div class="body">
+      <div class="container">
         <slot></slot>
       </div>
-    </div>
-  `;
+    `;
   }
 }

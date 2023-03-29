@@ -26,7 +26,6 @@ export class CardAccordionItem extends LitElement {
   }
 
   firstUpdated() {
-    this.bodyContentHeight;
     // Update the body content height when the window is resized.
     window.addEventListener('resize', () => this.updateBodyContentHeight(), {
       passive: true,

@@ -18,6 +18,7 @@ export class CardAccordionItem extends LitElement {
   @query('#bodyContent')
   body?: HTMLElement;
 
+  @state()
   private bodyContentHeight?: Number;
 
   handleClick() {
@@ -110,7 +111,7 @@ export class CardAccordionItem extends LitElement {
     return html`
       <div
         style=${styleMap({
-          '--card-accordion-item-body-height': `${this.body?.offsetHeight}px`,
+          '--card-accordion-item-body-height': `${this.bodyContentHeight}px`,
         })}
         class=${classMap({
           container: true,
